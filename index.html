@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeworkArc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg:        #171a21;
+            --nav:       #1b2838;
+            --panel:     #1e2530;
+            --sidebar:   #1b2838;
+            --card:      #16202d;
+            --hover:     #2a475e;
+            --blue:      #1a9fff;
+            --blue2:     #66c0f4;
+            --blue-dim:  rgba(26,159,255,0.15);
+            --green2:    #a4d007;
+            --online:    #57cbde;
+            --text:      #c6d4df;
+            --text-hi:   #ffffff;
+            --text-lo:   #8f98a0;
+            --text-dim:  #556677;
+            --border:    #2a3f52;
+            --shadow:    0 4px 24px rgba(0,0,0,0.6);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: 'Noto Sans', Arial, sans-serif; font-size: 13px;
+            height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        /* ══ AUTH ══ */
+        #auth-screen {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--bg); display: flex;
+            align-items: center; justify-content: center;
+            background-image:
+                radial-gradient(ellipse at 50% 0%, rgba(26,159,255,0.08) 0%, transparent 60%),
+                linear-gradient(180deg, #1b2838 0%, #171a21 100%);
+        }
+        .auth-box { width: 360px; background: var(--nav); border: 1px solid var(--border); box-shadow: var(--shadow); }
+        .auth-header {
+            background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+            padding: 28px; border-bottom: 1px solid var(--border); text-align: center;
+        }
+        .auth-logo { font-size: 26px; font-weight: 700; color: var(--text-hi); letter-spacing: 0.5px; }
+        .auth-logo span { color: var(--blue); }
+        .auth-body { padding: 24px 28px 28px; }
+        .tab-strip { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .atab {
+            flex: 1; padding: 10px 0; text-align: center; cursor: pointer;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+            color: var(--text-lo); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s;
+        }
+        .atab:hover { color: var(--text); }
+        .atab.on { color: var(--blue2); border-bottom-color: var(--blue2); }
+        .fld { margin-bottom: 14px; }
+        .fld label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-lo); margin-bottom: 6px; }
+        .fld input {
+            width: 100%; background: var(--bg); border: 1px solid var(--border);
+            padding: 10px 12px; color: var(--text-hi);
+            font-family: 'Noto Sans', sans-serif; font-size: 13px; outline: none; transition: border-color 0.15s;
+        }
+        .fld input:focus { border-color: var(--blue); }
+        .auth-submit {
+            width: 100%; padding: 11px;
+            background: linear-gradient(to bottom, #47bfff 5%, #1a9fff 95%);
+            border: none; color: #0d1f2d;
+            font-family: 'Noto Sans', sans-serif; font-size: 12px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.15s; margin-top: 4px;
+        }
+        .auth-submit:hover { background: linear-gradient(to bottom, #66c0f4 5%, #47bfff 95%); }
+        .auth-err { color: #e05b4b; font-size: 11px; margin-top: 8px; text-align: center; display: none; }
+        .code-reveal {
+            background: rgba(91,163,43,0.1); border: 1px solid rgba(91,163,43,0.3);
+            padding: 14px 16px; margin-top: 14px; display: none; text-align: center; font-size: 12px; color: var(--text-lo);
+        }
+        .code-reveal .the-code { font-size: 24px; font-weight: 700; color: var(--green2); letter-spacing: 4px; margin: 8px 0; font-family: monospace; }
+
+        /* ══ TOPBAR ══ */
+        .topbar {
+            background: var(--nav); height: 40px;
+            display: flex; align-items: stretch;
+            border-bottom: 1px solid #000; flex-shrink: 0; z-index: 50;
+        }
+        .tb-logo {
+            display: flex; align-items: center; padding: 0 18px;
+            font-size: 15px; font-weight: 700; color: var(--text-hi);
+            border-right: 1px solid rgba(0,0,0,0.3);
+        }
+        .tb-logo span { color: var(--blue); }
+        .tb-link {
+            display: flex; align-items: center; gap: 7px; padding: 0 16px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-lo); cursor: pointer;
+            border-bottom: 2px solid transparent; transition: all 0.15s;
+        }
+        .tb-link:hover { color: var(--text-hi); background: rgba(255,255,255,0.04); }
+        .tb-link.on { color: var(--text-hi); border-bottom-color: var(--blue); }
+        .tb-spacer { flex: 1; }
+        .tb-user {
+            display: flex; align-items: center; gap: 9px; padding: 0 16px;
+            cursor: pointer; border-left: 1px solid rgba(0,0,0,0.3); transition: background 0.15s;
+        }
+        .tb-user:hover { background: rgba(255,255,255,0.05); }
+        .tb-av {
+            width: 22px; height: 22px;
+            background: linear-gradient(135deg, #2a475e, var(--blue));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; color: white;
+        }
+        .tb-uname { font-size: 12px; font-weight: 600; color: var(--blue2); }
+
+        /* ══ LAYOUT ══ */
+        .app { display: flex; flex: 1; overflow: hidden; }
+        .page { display: none; flex: 1; overflow: hidden; }
+        .page.on { display: flex; }
+
+        /* ══ SIDEBAR ══ */
+        .sidebar {
+            width: 250px; background: var(--sidebar);
+            border-right: 1px solid #000;
+            display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border); }
+        .sb-search {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.2);
+        }
+        .sb-search i { color: var(--text-dim); font-size: 11px; }
+        .sb-search input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-family: 'Noto Sans', sans-serif; font-size: 12px; }
+        .sb-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); padding: 12px 12px 5px; }
+        .sb-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 7px 12px; font-size: 12px; color: var(--text-lo);
+            cursor: pointer; transition: all 0.1s;
+        }
+        .sb-item:hover { background: var(--hover); color: var(--text-hi); }
+        .sb-item.on { background: var(--hover); color: var(--text-hi); }
+        .sb-il { display: flex; align-items: center; gap: 8px; }
+        .sb-il i { width: 13px; text-align: center; font-size: 11px; color: var(--text-dim); }
+        .sb-item.on .sb-il i { color: var(--blue); }
+        .sb-cnt { font-size: 10px; background: var(--blue-dim); color: var(--blue); padding: 1px 6px; }
+        .sb-div { height: 1px; background: rgba(0,0,0,0.4); margin: 5px 0; }
+        .sb-game {
+            display: flex; align-items: center; gap: 9px;
+            padding: 5px 12px; font-size: 11px; color: var(--text-lo); cursor: pointer; transition: all 0.1s;
+        }
+        .sb-game:hover { background: var(--hover); color: var(--text-hi); }
+        .sb-gicon { width: 26px; height: 18px; object-fit: cover; background: var(--card); flex-shrink: 0; }
+        .sb-gfallback { width: 26px; height: 18px; background: var(--hover); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
+
+        /* ══ MAIN ══ */
+        .main {
+            flex: 1; overflow-y: auto;
+            background: linear-gradient(180deg, #1b3a52 0%, var(--bg) 280px);
+        }
+        .main::-webkit-scrollbar { width: 6px; }
+        .main::-webkit-scrollbar-track { background: var(--bg); }
+        .main::-webkit-scrollbar-thumb { background: #3d5a72; }
+        .main-inner { padding: 22px 26px; }
+        .sec-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .sec-title { font-size: 17px; font-weight: 700; color: var(--text-hi); }
+        .sec-meta { font-size: 11px; color: var(--text-lo); }
+
+        /* Capsule cards */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(144px, 1fr)); gap: 12px; }
+        .gcard { cursor: pointer; position: relative; transition: transform 0.15s; }
+        .gcard:hover { transform: scale(1.03); }
+        .gcard:hover .gcap { border-color: var(--blue); box-shadow: 0 0 12px rgba(26,159,255,0.3); }
+        .gcap {
+            width: 100%; aspect-ratio: 2/3; background: var(--card);
+            border: 1px solid var(--border); overflow: hidden; position: relative;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .gcap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .gcap-fall {
+            width: 100%; height: 100%; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 8px;
+            background: linear-gradient(160deg, #1e3350, #162030);
+            font-size: 26px; color: var(--text-dim);
+        }
+        .gcap-fall span { font-size: 10px; color: var(--text-lo); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; padding: 0 6px; }
+        .gcap-ov {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.6);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.15s;
+        }
+        .gcard:hover .gcap-ov { opacity: 1; }
+        .play-btn {
+            background: var(--blue); width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; color: white; box-shadow: 0 0 18px rgba(26,159,255,0.5);
+        }
+        .gcard-info { padding: 6px 2px 0; }
+        .gcard-name { font-size: 11px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .gcard-cat { font-size: 10px; color: var(--text-lo); margin-top: 2px; }
+        .gcard-by { font-size: 10px; color: var(--text-dim); }
+        .empty { grid-column: 1/-1; padding: 50px; text-align: center; color: var(--text-dim); }
+        .empty i { font-size: 32px; display: block; margin-bottom: 10px; }
+        .empty h3 { font-size: 14px; color: var(--text-lo); margin-bottom: 5px; }
+        .empty p { font-size: 12px; }
+
+        /* ══ FRIENDS ══ */
+        .friends {
+            width: 196px; background: var(--sidebar);
+            border-left: 1px solid #000; display: flex; flex-direction: column; flex-shrink: 0;
+        }
+        .fr-head {
+            padding: 11px 12px; border-bottom: 1px solid rgba(0,0,0,0.5);
+            font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-lo);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .fr-add { cursor: pointer; transition: color 0.15s; }
+        .fr-add:hover { color: var(--blue2); }
+        .fr-body { flex: 1; overflow-y: auto; padding: 6px 0; }
+        .fr-body::-webkit-scrollbar { width: 3px; }
+        .fr-body::-webkit-scrollbar-thumb { background: var(--border); }
+        .fr-sec { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); padding: 8px 12px 3px; }
+        .fr-row { display: flex; align-items: center; gap: 9px; padding: 6px 12px; cursor: pointer; transition: background 0.1s; }
+        .fr-row:hover { background: var(--hover); }
+        .fr-av {
+            width: 28px; height: 28px; flex-shrink: 0; position: relative;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: white;
+            background: linear-gradient(135deg, #2a475e, #1a9fff);
+        }
+        .fr-dot { position: absolute; bottom: -2px; right: -2px; width: 8px; height: 8px; border: 2px solid var(--sidebar); }
+        .fr-dot.on { background: var(--online); }
+        .fr-dot.off { background: var(--text-dim); }
+        .fr-name { font-size: 12px; font-weight: 600; color: var(--text); }
+        .fr-sub { font-size: 10px; color: var(--online); }
+        .fr-empty { padding: 18px 12px; font-size: 11px; color: var(--text-dim); line-height: 1.7; }
+        .fr-foot { padding: 8px; border-top: 1px solid rgba(0,0,0,0.4); }
+        .fr-btn {
+            width: 100%; padding: 8px; background: transparent;
+            border: 1px solid var(--border); color: var(--text-lo);
+            font-family: 'Noto Sans', sans-serif; font-size: 11px; cursor: pointer; transition: all 0.15s;
+        }
+        .fr-btn:hover { border-color: var(--blue); color: var(--blue2); background: var(--blue-dim); }
+
+        /* ══ ADD GAME ══ */
+        .addpage { flex: 1; overflow-y: auto; background: var(--bg); padding: 26px; }
+        .addform { background: var(--panel); border: 1px solid var(--border); max-width: 500px; padding: 22px; }
+        .addform h2 { font-size: 16px; font-weight: 700; color: var(--text-hi); margin-bottom: 4px; }
+        .addform p { font-size: 12px; color: var(--text-lo); margin-bottom: 18px; line-height: 1.6; }
+        .cat-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; }
+        .copt {
+            padding: 4px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+            cursor: pointer; border: 1px solid var(--border); color: var(--text-lo); background: var(--bg); transition: all 0.12s;
+        }
+        .copt:hover { border-color: var(--blue); color: var(--blue2); }
+        .copt.on { background: var(--blue); border-color: var(--blue); color: #0d1f2d; }
+        .sub-btn {
+            padding: 10px 22px; background: linear-gradient(to bottom, #47bfff, #1a9fff);
+            border: none; color: #0d1f2d; font-family: 'Noto Sans', sans-serif;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+            cursor: pointer; transition: all 0.15s; margin-top: 8px;
+        }
+        .sub-btn:hover { background: linear-gradient(to bottom, #66c0f4, #47bfff); }
+        .file-drop {
+            border: 1px dashed var(--border); padding: 28px; text-align: center;
+            cursor: pointer; transition: all 0.15s; background: var(--bg);
+        }
+        .file-drop:hover, .file-drop.drag { border-color: var(--blue); background: var(--blue-dim); }
+        .file-drop i { font-size: 24px; color: var(--text-dim); display: block; margin-bottom: 8px; }
+        .file-drop.has-file i { color: var(--green2); }
+        #drop-text { font-size: 13px; color: var(--text-lo); font-weight: 600; }
+        .file-drop.has-file #drop-text { color: var(--green2); }
+        #drop-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+        .info-strip {
+            background: rgba(26,159,255,0.07); border-left: 3px solid var(--blue);
+            padding: 11px 14px; margin-top: 16px; font-size: 11px; color: var(--text-lo); line-height: 1.7;
+        }
+
+        /* ══ PROFILE ══ */
+        .profpage { flex: 1; overflow-y: auto; background: var(--bg); padding: 26px; }
+        .profcard { background: var(--panel); border: 1px solid var(--border); max-width: 440px; }
+        .prof-banner {
+            height: 90px; background: linear-gradient(135deg, #1b3a52 0%, #2a475e 50%, #1a9fff22 100%);
+            border-bottom: 1px solid var(--border); position: relative;
+        }
+        .prof-av-wrap { position: absolute; bottom: -24px; left: 18px; }
+        .prof-av {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, #1b2838, var(--blue));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; font-weight: 700; color: white;
+            border: 3px solid var(--panel);
+        }
+        .prof-body { padding: 32px 18px 18px; }
+        .prof-name { font-size: 19px; font-weight: 700; color: var(--text-hi); }
+        .prof-code { font-size: 11px; color: var(--text-lo); margin-top: 4px; }
+        .prof-code b { font-family: monospace; font-size: 14px; color: var(--green2); letter-spacing: 2px; }
+        .copy-lnk {
+            background: none; border: 1px solid var(--border); padding: 2px 8px;
+            cursor: pointer; color: var(--text-lo); font-family: 'Noto Sans', sans-serif;
+            font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+            transition: all 0.15s; margin-left: 7px; vertical-align: middle;
+        }
+        .copy-lnk:hover { border-color: var(--blue); color: var(--blue2); }
+        .stats-bar { display: flex; margin-top: 16px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .sstat { flex: 1; padding: 13px; text-align: center; border-right: 1px solid var(--border); }
+        .sstat:last-child { border-right: none; }
+        .sstat-n { font-size: 20px; font-weight: 700; color: var(--blue2); }
+        .sstat-l { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); margin-top: 2px; }
+        .dzone { margin: 14px 18px 18px; }
+        .dzone-t { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #e05b4b; font-weight: 700; margin-bottom: 9px; }
+        .d-btn {
+            background: transparent; border: 1px solid #e05b4b55; padding: 7px 14px;
+            cursor: pointer; color: #e05b4b; font-family: 'Noto Sans', sans-serif;
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+            transition: all 0.15s; margin-right: 8px;
+        }
+        .d-btn:hover { background: rgba(224,91,75,0.1); border-color: #e05b4b; }
+
+        /* ══ MODALS ══ */
+        .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 800; display: none; align-items: center; justify-content: center; }
+        .modal-bg.open { display: flex; }
+        .gmodal {
+            background: var(--bg); border: 1px solid var(--border);
+            width: 92vw; height: 88vh; display: flex; flex-direction: column;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.9);
+        }
+        .gmodal-bar {
+            background: var(--nav); padding: 9px 13px;
+            display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid #000; flex-shrink: 0;
+        }
+        .gmodal-title { flex: 1; font-size: 13px; font-weight: 700; color: var(--text-hi); }
+        .gmodal-close {
+            background: rgba(255,255,255,0.07); border: none; width: 26px; height: 26px;
+            cursor: pointer; color: var(--text-lo); font-size: 11px;
+            display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+        }
+        .gmodal-close:hover { background: #e05b4b33; color: #e05b4b; }
+        .gmodal iframe { flex: 1; border: none; background: #000; }
+        .fmodal {
+            background: var(--nav); border: 1px solid var(--border);
+            width: 330px; padding: 22px; box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+        .fmodal h3 { font-size: 15px; font-weight: 700; color: var(--text-hi); margin-bottom: 4px; }
+        .fmodal p { font-size: 12px; color: var(--text-lo); margin-bottom: 16px; }
+        .fm-btns { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
+        .btn-c {
+            padding: 8px 14px; background: transparent; border: 1px solid var(--border);
+            color: var(--text-lo); font-family: 'Noto Sans', sans-serif;
+            font-size: 11px; text-transform: uppercase; cursor: pointer; transition: all 0.15s;
+        }
+        .btn-c:hover { border-color: var(--text-lo); color: var(--text); }
+        .btn-ok {
+            padding: 8px 14px; background: linear-gradient(to bottom, #47bfff, #1a9fff);
+            border: none; color: #0d1f2d; font-family: 'Noto Sans', sans-serif;
+            font-size: 11px; text-transform: uppercase; font-weight: 700; cursor: pointer; transition: all 0.15s;
+        }
+        .btn-ok:hover { background: linear-gradient(to bottom, #66c0f4, #47bfff); }
+
+        /* ══ TOAST ══ */
+        .toast {
+            position: fixed; bottom: 18px; left: 50%;
+            transform: translateX(-50%) translateY(60px);
+            background: var(--nav); border: 1px solid var(--border);
+            padding: 9px 18px; font-size: 12px; z-index: 9999;
+            transition: transform 0.25s ease; box-shadow: var(--shadow); white-space: nowrap;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.ok { border-color: #5ba32b; color: var(--green2); }
+        .toast.bad { border-color: #e05b4b; color: #e05b4b; }
+    </style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+    <div class="auth-box">
+        <div class="auth-header">
+            <div class="auth-logo">Homework<span>Arc</span></div>
+        </div>
+        <div class="auth-body">
+            <div class="tab-strip">
+                <div class="atab on" id="t-in" onclick="authSwitch('in')">Sign In</div>
+                <div class="atab" id="t-up" onclick="authSwitch('up')">Create Account</div>
+            </div>
+            <div id="f-in">
+                <div class="fld"><label>Account Name</label><input id="in-u" placeholder="Username"></div>
+                <div class="fld"><label>Password</label><input id="in-p" type="password" placeholder="••••••••"></div>
+                <button class="auth-submit" onclick="doLogin()">Sign In</button>
+                <div class="auth-err" id="in-err">The account name or password is incorrect.</div>
+            </div>
+            <div id="f-up" style="display:none">
+                <div class="fld"><label>Account Name</label><input id="up-u" placeholder="Choose a username"></div>
+                <div class="fld"><label>Password</label><input id="up-p" type="password" placeholder="At least 4 characters"></div>
+                <div class="fld"><label>Confirm Password</label><input id="up-p2" type="password" placeholder="Repeat password"></div>
+                <button class="auth-submit" id="up-btn" onclick="doRegister()">Create Account</button>
+                <div class="auth-err" id="up-err"></div>
+                <div class="code-reveal" id="up-ok">
+                    <div style="font-size:12px;margin-bottom:4px;color:var(--text)">Account created! Your friend code:</div>
+                    <div class="the-code" id="new-code">------</div>
+                    <div style="font-size:11px">Share this so others can add you as a friend</div>
+                    <button class="auth-submit" style="margin-top:14px" onclick="doAutoLogin()">Enter HomeworkArc</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- GAME MODAL -->
+<div class="modal-bg" id="gmod-bg">
+    <div class="gmodal">
+        <div class="gmodal-bar">
+            <div class="gmodal-title" id="gmod-title">Game</div>
+            <button class="gmodal-close" onclick="closeGame()"><i class="fas fa-times"></i></button>
+        </div>
+        <iframe id="gmod-frame" allowfullscreen></iframe>
+    </div>
+</div>
+
+<!-- FRIEND MODAL -->
+<div class="modal-bg" id="fmod-bg">
+    <div class="fmodal">
+        <h3>Add a Friend</h3>
+        <p>Enter your friend's 6-character code.</p>
+        <div class="fld">
+            <label>Friend Code</label>
+            <input id="fc-in" maxlength="6" placeholder="A3K9PZ"
+                   style="text-transform:uppercase;letter-spacing:5px;font-size:20px;font-weight:700;font-family:monospace">
+        </div>
+        <div class="auth-err" id="fc-err">No account found with that code.</div>
+        <div class="fm-btns">
+            <button class="btn-c" onclick="closeFM()">Cancel</button>
+            <button class="btn-ok" onclick="addByCode()">Add Friend</button>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="topbar">
+    <div class="tb-logo">Homework<span>Arc</span></div>
+    <div class="tb-link on" id="nav-lib" onclick="goPage('pg-lib','nav-lib')"><i class="fas fa-th"></i> Library</div>
+    <div class="tb-link" id="nav-add" onclick="goPage('pg-add','nav-add')"><i class="fas fa-plus"></i> Add Game</div>
+    <div class="tb-link" id="nav-prf" onclick="goPage('pg-prf','nav-prf')"><i class="fas fa-user"></i> Profile</div>
+    <div class="tb-spacer"></div>
+    <div class="tb-user" onclick="goPage('pg-prf','nav-prf')">
+        <div class="tb-av" id="nav-av">?</div>
+        <span class="tb-uname" id="nav-uname">...</span>
+    </div>
+</div>
+
+<div class="app">
+    <!-- LIBRARY -->
+    <div id="pg-lib" class="page on">
+        <div class="sidebar">
+            <div class="sb-search">
+                <i class="fas fa-search"></i>
+                <input id="sb-q" placeholder="Search library" oninput="renderGames()">
+            </div>
+            <div class="sb-label">Categories</div>
+            <div class="sb-item on" id="sb-all" onclick="setCat('all','sb-all')">
+                <div class="sb-il"><i class="fas fa-th-large"></i> All Games</div>
+                <span class="sb-cnt" id="cnt-all">0</span>
+            </div>
+            <div class="sb-item" id="sb-Action" onclick="setCat('Action','sb-Action')"><div class="sb-il"><i class="fas fa-bolt"></i> Action</div></div>
+            <div class="sb-item" id="sb-Puzzle" onclick="setCat('Puzzle','sb-Puzzle')"><div class="sb-il"><i class="fas fa-puzzle-piece"></i> Puzzle</div></div>
+            <div class="sb-item" id="sb-Arcade" onclick="setCat('Arcade','sb-Arcade')"><div class="sb-il"><i class="fas fa-star"></i> Arcade</div></div>
+            <div class="sb-item" id="sb-Strategy" onclick="setCat('Strategy','sb-Strategy')"><div class="sb-il"><i class="fas fa-chess"></i> Strategy</div></div>
+            <div class="sb-item" id="sb-Other" onclick="setCat('Other','sb-Other')"><div class="sb-il"><i class="fas fa-circle"></i> Other</div></div>
+            <div class="sb-div"></div>
+            <div class="sb-label">Recent</div>
+            <div id="sb-recents"></div>
+        </div>
+
+        <div class="main">
+            <div class="main-inner">
+                <div class="sec-row">
+                    <div class="sec-title" id="sec-title">All Games</div>
+                    <div class="sec-meta" id="sec-meta"></div>
+                </div>
+                <div class="grid" id="game-grid"></div>
+            </div>
+        </div>
+
+        <div class="friends">
+            <div class="fr-head">
+                Friends
+                <i class="fas fa-user-plus fr-add" onclick="openFM()" title="Add Friend"></i>
+            </div>
+            <div class="fr-body" id="friends-list"></div>
+            <div class="fr-foot">
+                <button class="fr-btn" onclick="openFM()"><i class="fas fa-plus"></i> Add by Code</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD GAME -->
+    <div id="pg-add" class="page">
+        <div class="addpage">
+            <div class="addform">
+                <h2>Add a Game to the Library</h2>
+                <p>Upload an HTML game file from your computer. It gets saved in the browser and anyone on this device can play it.</p>
+
+                <div class="fld"><label>Game Name</label><input id="g-name" placeholder="e.g. Flappy Bird Clone"></div>
+
+                <div class="fld">
+                    <label>HTML Game File</label>
+                    <div class="file-drop" id="file-drop" onclick="document.getElementById('g-file').click()">
+                        <i class="fas fa-upload" id="drop-icon"></i>
+                        <div id="drop-text">Click to choose an .html file</div>
+                        <div id="drop-sub">or drag and drop here</div>
+                        <input type="file" id="g-file" accept=".html,.htm" style="display:none" onchange="handleFile(this)">
+                    </div>
+                </div>
+
+                <div class="fld">
+                    <label>Category</label>
+                    <div class="cat-row" id="cat-row">
+                        <div class="copt on" onclick="pickCat(this,'Action')">Action</div>
+                        <div class="copt" onclick="pickCat(this,'Puzzle')">Puzzle</div>
+                        <div class="copt" onclick="pickCat(this,'Arcade')">Arcade</div>
+                        <div class="copt" onclick="pickCat(this,'Strategy')">Strategy</div>
+                        <div class="copt" onclick="pickCat(this,'Other')">Other</div>
+                    </div>
+                </div>
+
+                <div class="fld"><label>Cover Image URL <span style="color:var(--text-dim)">(optional)</span></label><input id="g-img" placeholder="https://..."></div>
+
+                <button class="sub-btn" onclick="submitGame()">Add to Library</button>
+
+                <div class="info-strip">
+                    <strong style="color:var(--blue2)">How it works:</strong> The game's HTML is stored directly in your browser. Best for self-contained HTML games under ~3MB. Games with separate asset folders may not load correctly.
+                </div>
+
+                <div id="storage-bar-wrap" style="margin-top:14px">
+                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-lo);margin-bottom:5px">
+                        <span>Storage Used</span><span id="storage-text">0 KB / ~5 MB</span>
+                    </div>
+                    <div style="height:4px;background:var(--border)">
+                        <div id="storage-fill" style="height:100%;background:var(--blue);width:0%;transition:width 0.3s"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="pg-prf" class="page">
+        <div class="profpage">
+            <div class="profcard">
+                <div class="prof-banner">
+                    <div class="prof-av-wrap"><div class="prof-av" id="prf-av">?</div></div>
+                </div>
+                <div class="prof-body">
+                    <div class="prof-name" id="prf-name">...</div>
+                    <div class="prof-code">Friend Code: <b id="prf-code">------</b><button class="copy-lnk" onclick="copyCode()">Copy</button></div>
+                </div>
+                <div class="stats-bar">
+                    <div class="sstat"><div class="sstat-n" id="st-g">0</div><div class="sstat-l">Games Added</div></div>
+                    <div class="sstat"><div class="sstat-n" id="st-f">0</div><div class="sstat-l">Friends</div></div>
+                </div>
+                <div class="dzone">
+                    <div class="dzone-t">Account</div>
+                    <button class="d-btn" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+                    <button class="d-btn" onclick="doReset()"><i class="fas fa-trash"></i> Reset Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const DB = {
+    acc: () => JSON.parse(localStorage.getItem('ha3_acc') || '{}'),
+    setAcc: a => localStorage.setItem('ha3_acc', JSON.stringify(a)),
+    games: () => JSON.parse(localStorage.getItem('ha3_games') || '[]'),
+    setGames: g => localStorage.setItem('ha3_games', JSON.stringify(g)),
+    cur: () => localStorage.getItem('ha3_cur'),
+    setCur: u => localStorage.setItem('ha3_cur', u),
+    clearCur: () => localStorage.removeItem('ha3_cur'),
+};
+const getUser = () => { const u = DB.cur(); return u ? DB.acc()[u] : null; };
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+function genCode() {
+    const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    return Array.from({length:6}, () => c[Math.floor(Math.random()*c.length)]).join('');
+}
+
+// AUTH
+let pendingReg = null;
+function authSwitch(t) {
+    document.getElementById('f-in').style.display = t==='in'?'block':'none';
+    document.getElementById('f-up').style.display = t==='up'?'block':'none';
+    document.getElementById('t-in').classList.toggle('on',t==='in');
+    document.getElementById('t-up').classList.toggle('on',t==='up');
+}
+function doLogin() {
+    const u = document.getElementById('in-u').value.trim().toLowerCase();
+    const p = document.getElementById('in-p').value;
+    const err = document.getElementById('in-err');
+    err.style.display='none';
+    const acc = DB.acc();
+    if (!acc[u]||acc[u].password!==p){err.style.display='block';return;}
+    DB.setCur(u); bootApp();
+}
+function doRegister() {
+    const u = document.getElementById('up-u').value.trim();
+    const p = document.getElementById('up-p').value;
+    const p2 = document.getElementById('up-p2').value;
+    const err = document.getElementById('up-err');
+    err.style.display='none';
+    if(!u||u.length<3){err.textContent='Username must be 3+ characters';err.style.display='block';return;}
+    if(p.length<4){err.textContent='Password must be 4+ characters';err.style.display='block';return;}
+    if(p!==p2){err.textContent='Passwords do not match';err.style.display='block';return;}
+    const acc=DB.acc();
+    if(acc[u.toLowerCase()]){err.textContent='Account name already taken';err.style.display='block';return;}
+    const code=genCode();
+    acc[u.toLowerCase()]={displayName:u,password:p,friendCode:code,friends:[],gamesAdded:0};
+    DB.setAcc(acc); pendingReg=u.toLowerCase();
+    document.getElementById('new-code').textContent=code;
+    document.getElementById('up-ok').style.display='block';
+    document.querySelectorAll('#f-up .fld,#up-btn').forEach(el=>el.style.display='none');
+}
+function doAutoLogin(){if(!pendingReg)return;DB.setCur(pendingReg);bootApp();}
+function bootApp() {
+    document.getElementById('auth-screen').style.display='none';
+    const user=getUser(); if(!user){document.getElementById('auth-screen').style.display='flex';return;}
+    const i=user.displayName[0].toUpperCase();
+    ['nav-av','prf-av'].forEach(id=>document.getElementById(id).textContent=i);
+    document.getElementById('nav-uname').textContent=user.displayName;
+    document.getElementById('prf-name').textContent=user.displayName;
+    document.getElementById('prf-code').textContent=user.friendCode;
+    renderGames(); renderFriends(); updateStats(); updateStorageBar();
+}
+window.addEventListener('load',()=>{if(DB.cur()&&getUser())bootApp();});
+
+// NAV
+function goPage(id,navId){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+    document.querySelectorAll('.tb-link').forEach(b=>b.classList.remove('on'));
+    document.getElementById(id).classList.add('on');
+    document.getElementById(navId)?.classList.add('on');
+    if(id==='pg-prf')updateStats();
+}
+
+// GAMES
+let activeCat='all', selCat='Action', pendingFileContent=null;
+const ICONS={Action:'bolt',Puzzle:'puzzle-piece',Arcade:'star',Strategy:'chess',Other:'circle'};
+
+// File upload handling
+function handleFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (!file.name.endsWith('.html') && !file.name.endsWith('.htm')) {
+        toast('Only .html files are supported','bad'); return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+        pendingFileContent = e.target.result;
+        const drop = document.getElementById('file-drop');
+        drop.classList.add('has-file');
+        document.getElementById('drop-text').textContent = '✓ ' + file.name;
+        document.getElementById('drop-sub').textContent = (file.size/1024).toFixed(1) + ' KB loaded';
+        // Auto-fill name if empty
+        if (!document.getElementById('g-name').value.trim()) {
+            document.getElementById('g-name').value = file.name.replace(/\.html?$/i,'');
+        }
+        updateStorageBar();
+    };
+    reader.readAsText(file);
+}
+
+// Drag and drop
+const dropZone = document.getElementById('file-drop');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('drag');
+    const file = e.dataTransfer.files[0];
+    if (file) { const dt = new DataTransfer(); dt.items.add(file); document.getElementById('g-file').files = dt.files; handleFile(document.getElementById('g-file')); }
+});
+
+function updateStorageBar() {
+    try {
+        let total = 0;
+        for (let k in localStorage) { if (localStorage.hasOwnProperty(k)) total += (localStorage[k].length + k.length) * 2; }
+        const kb = total / 1024;
+        const pct = Math.min((kb / 5120) * 100, 100);
+        document.getElementById('storage-text').textContent = kb.toFixed(0) + ' KB / ~5 MB';
+        document.getElementById('storage-fill').style.width = pct + '%';
+        document.getElementById('storage-fill').style.background = pct > 80 ? '#e05b4b' : pct > 60 ? '#f59e0b' : 'var(--blue)';
+    } catch(e) {}
+}
+
+function setCat(cat,sid){
+    activeCat=cat;
+    document.querySelectorAll('.sb-item').forEach(s=>s.classList.remove('on'));
+    document.getElementById(sid)?.classList.add('on');
+    document.getElementById('sec-title').textContent=cat==='all'?'All Games':cat;
+    renderGames();
+}
+function pickCat(el,cat){
+    document.querySelectorAll('.copt').forEach(c=>c.classList.remove('on'));
+    el.classList.add('on'); selCat=cat;
+}
+function renderGames(){
+    const grid=document.getElementById('game-grid');
+    const q=(document.getElementById('sb-q')?.value||'').toLowerCase();
+    let games=DB.games();
+    document.getElementById('cnt-all').textContent=games.length;
+    if(activeCat!=='all')games=games.filter(g=>g.cat===activeCat);
+    if(q)games=games.filter(g=>g.name.toLowerCase().includes(q));
+    document.getElementById('sec-meta').textContent=games.length+' game'+(games.length!==1?'s':'');
+
+    document.getElementById('sb-recents').innerHTML=DB.games().slice(0,6).map(g=>{
+        const icon=ICONS[g.cat]||'circle';
+        const t=g.img?`<img class="sb-gicon" src="${esc(g.img)}" onerror="this.style.display='none'">`:`<div class="sb-gfallback"><i class="fas fa-${icon}"></i></div>`;
+        return `<div class="sb-game" onclick="openGame(${g.id},'${esc(g.name)}')">${t}<span>${esc(g.name)}</span></div>`;
+    }).join('');
+
+    if(!games.length){
+        grid.innerHTML=`<div class="empty"><i class="fas fa-gamepad"></i><h3>No games here yet</h3><p>Use "Add Game" in the top nav to upload an HTML file!</p></div>`;
+        return;
+    }
+    grid.innerHTML=games.map(g=>{
+        const icon=ICONS[g.cat]||'circle';
+        const thumb=g.img
+            ?`<img src="${esc(g.img)}" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><div class="gcap-fall" style="display:none"><i class="fas fa-${icon}"></i><span>${esc(g.name)}</span></div>`
+            :`<div class="gcap-fall"><i class="fas fa-${icon}"></i><span>${esc(g.name)}</span></div>`;
+        return `<div class="gcard" onclick="openGame(${g.id},'${esc(g.name)}')">
+            <div class="gcap">${thumb}<div class="gcap-ov"><div class="play-btn"><i class="fas fa-play" style="margin-left:2px"></i></div></div></div>
+            <div class="gcard-info">
+                <div class="gcard-name">${esc(g.name)}</div>
+                <div class="gcard-cat">${esc(g.cat)}</div>
+                <div class="gcard-by">by ${esc(g.addedBy)}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+function submitGame(){
+    const name=document.getElementById('g-name').value.trim();
+    const img=document.getElementById('g-img').value.trim();
+    const user=getUser();
+    if(!name){toast('Enter a game name','bad');return;}
+    if(!pendingFileContent){toast('Select an HTML file first','bad');return;}
+    if(!user)return;
+
+    const id = Date.now();
+    // Store HTML content separately keyed by id to keep game list small
+    try {
+        localStorage.setItem('ha3_game_'+id, pendingFileContent);
+    } catch(e) {
+        toast('Not enough storage space!','bad'); return;
+    }
+
+    const games=DB.games();
+    games.unshift({id,name,cat:selCat,img:img||'',addedBy:user.displayName,ts:id});
+    DB.setGames(games);
+    const acc=DB.acc(); acc[DB.cur()].gamesAdded=(acc[DB.cur()].gamesAdded||0)+1; DB.setAcc(acc);
+
+    // Reset form
+    document.getElementById('g-name').value='';
+    document.getElementById('g-img').value='';
+    document.getElementById('g-file').value='';
+    pendingFileContent=null;
+    const drop=document.getElementById('file-drop');
+    drop.classList.remove('has-file');
+    document.getElementById('drop-text').textContent='Click to choose an .html file';
+    document.getElementById('drop-sub').textContent='or drag and drop here';
+    document.getElementById('drop-icon').className='fas fa-upload';
+
+    updateStorageBar();
+    toast(`"${name}" added to library`,'ok');
+    goPage('pg-lib','nav-lib'); renderGames();
+}
+
+// GAME MODAL
+function openGame(id, name){
+    const html = localStorage.getItem('ha3_game_' + id);
+    if (!html) { toast('Game file not found','bad'); return; }
+    document.getElementById('gmod-title').textContent = name;
+    const frame = document.getElementById('gmod-frame');
+    frame.removeAttribute('src');
+    frame.srcdoc = html;
+    document.getElementById('gmod-bg').classList.add('open');
+}
+function closeGame(){
+    document.getElementById('gmod-bg').classList.remove('open');
+    document.getElementById('gmod-frame').srcdoc = '';
+}
+document.getElementById('gmod-bg').addEventListener('click',e=>{if(e.target===document.getElementById('gmod-bg'))closeGame();});
+
+// FRIENDS
+function renderFriends(){
+    const user=getUser(); if(!user)return;
+    const acc=DB.acc(), friends=user.friends||[];
+    const c=document.getElementById('friends-list');
+    if(!friends.length){c.innerHTML=`<div class="fr-empty">No friends yet.<br>Add someone using their friend code.</div>`;return;}
+    c.innerHTML=`<div class="fr-sec">Online — ${friends.filter(f=>acc[f]).length}</div>`+
+        friends.filter(f=>acc[f]).map(f=>{const a=acc[f];return`<div class="fr-row"><div class="fr-av">${a.displayName[0].toUpperCase()}<div class="fr-dot on"></div></div><div><div class="fr-name">${esc(a.displayName)}</div><div class="fr-sub">Online</div></div></div>`;}).join('');
+}
+function openFM(){document.getElementById('fmod-bg').classList.add('open');document.getElementById('fc-in').value='';document.getElementById('fc-err').style.display='none';}
+function closeFM(){document.getElementById('fmod-bg').classList.remove('open');}
+function addByCode(){
+    const code=document.getElementById('fc-in').value.trim().toUpperCase();
+    const err=document.getElementById('fc-err'); err.style.display='none';
+    if(code.length!==6){err.textContent='Enter a 6-character code';err.style.display='block';return;}
+    const acc=DB.acc(),cur=DB.cur();
+    const target=Object.entries(acc).find(([_,a])=>a.friendCode===code);
+    if(!target){err.textContent='No account found with that code';err.style.display='block';return;}
+    if(target[0]===cur){err.textContent="That's your own code";err.style.display='block';return;}
+    if(acc[cur].friends.includes(target[0])){err.textContent='Already friends';err.style.display='block';return;}
+    acc[cur].friends.push(target[0]);
+    if(!acc[target[0]].friends.includes(cur))acc[target[0]].friends.push(cur);
+    DB.setAcc(acc); closeFM(); renderFriends();
+    toast(`Added ${target[1].displayName} as a friend!`,'ok');
+}
+document.getElementById('fmod-bg').addEventListener('click',e=>{if(e.target===document.getElementById('fmod-bg'))closeFM();});
+
+// PROFILE
+function updateStats(){const user=getUser();if(!user)return;document.getElementById('st-g').textContent=user.gamesAdded||0;document.getElementById('st-f').textContent=(user.friends||[]).length;}
+function copyCode(){const user=getUser();if(!user)return;navigator.clipboard.writeText(user.friendCode).then(()=>toast('Friend code copied!','ok'));}
+function doLogout(){DB.clearCur();location.reload();}
+function doReset(){if(confirm('Delete all data? This cannot be undone.')){localStorage.clear();location.reload();}}
+
+// TOAST
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type} show`;setTimeout(()=>t.classList.remove('show'),2800);}
+</script>
+</body>
+</html>
